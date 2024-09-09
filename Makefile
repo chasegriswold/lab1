@@ -10,7 +10,7 @@ CPP=$(PICO_TOOLCHAIN_PATH)/bin/arm-none-eabi-cpp
 	$(CPP) $< > $@
 
 clean:
-	rm -f main.i hello.txt
+	rm -f hello.txt main.i main.s main.o second.i second.s second.o firmware.elf
 
 #phony is not generating a file for clean, and no file for all, it is not one command clean all.
 .PHONY: clean all
