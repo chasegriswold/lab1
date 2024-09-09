@@ -1,0 +1,51 @@
+name: Build
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+  steps:
+    - name: Clean workspace
+      run: |
+        echo "Cleaning up previous run"
+        rm -rf "${{ github.workspace }}"
+        mkdir -p "${{ github.workspace }}"
+
+    - name: Checkout pico-sdk/develop
+      uses: actions/checkout@v2
+      with:
+        repository: raspberrypi/pico-sdk
+        ref: develop
+        path: pico-sdk
+
+    - name: Checkout pico-sdk submodules
+      working-directory: ${{github.workspace}}/pico-sdk
+      run: git submodule update --init
+
+    - name: Say hello
+      working-directory: ${{github.workspace}}
+      run:
+          test ! -f hello.txt
+          test ! -f main.o
+          test ! -f main.i
+          test ! -f main.s
+          make hello.txt
+          test -f hello.txt
+
+    - name: Compile
+      shell: bash
+      working-directory: ${{github.workspace}}
+      run:
+          test ! -f firmware.elf
+          PICO_TOOLCHAIN_PATH=../pico-sdk make
+          test -f firmware.elf
+    - name: Clean
+      shell: bash
+      working-directory: ${{github.workspace}}
+      run:
+          make clean
+          test ! -f hello.txt
+          test ! -f main.o
+          test ! -f main.i
+          test ! -f main.s
+          test ! -f firmware.elf
